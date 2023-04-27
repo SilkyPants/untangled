@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 enum KnotType {
   forward,
   backward,
@@ -28,4 +30,16 @@ extension KnotTypeExtension on KnotType {
         return false;
     }
   }
+}
+
+class Knot {
+  final Color color;
+  final KnotType type;
+  final Offset position;
+
+  Knot({
+    required this.color,
+    required this.type,
+    required this.position,
+  });
 }

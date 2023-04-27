@@ -2,19 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../thread_path.dart';
 
-class PathPainter extends CustomPainter {
+class ThreadPathPainter extends CustomPainter {
   final ThreadPath thread;
   final int alpha;
 
-  PathPainter({
+  ThreadPathPainter({
     required this.thread,
     this.alpha = 255,
   });
-
-  @override
-  bool? hitTest(Offset position) {
-    return true;
-  }
 
   @override
   void paint(Canvas canvas, Size size) {

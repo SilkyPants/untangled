@@ -1,12 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 
 import 'knot_type.dart';
-
 import 'painters/grid_painter.dart';
-import 'painters/knot_painter.dart';
-import 'painters/path_painter.dart';
+import 'pattern_knot.dart';
+import 'pattern_thread.dart';
 import 'thread_path.dart';
 
 class Pattern extends StatefulWidget {
@@ -16,21 +14,20 @@ class Pattern extends StatefulWidget {
     required this.knots,
     this.margin = 20,
     this.spacing = 50,
+    this.knotRadius = 20,
   });
 
   final List<Color> threads;
   final List<List<KnotType>> knots;
   final double margin;
   final double spacing;
+  final double knotRadius;
 
   @override
   State<Pattern> createState() => _PatternState();
 }
 
 class _PatternState extends State<Pattern> {
-  // which thread we have clicked on
-  var selectedThread = -1;
-
   @override
   Widget build(BuildContext context) {
     final width = widget.margin * 2 + widget.spacing * widget.threads.length;
@@ -40,6 +37,7 @@ class _PatternState extends State<Pattern> {
 
     // This would be a good candidate for a BLoC state calculation
     final threadPaths = calculateThreads();
+    final knots = calculateKnots();
 
     return SizedBox(
       width: width,
@@ -58,28 +56,74 @@ class _PatternState extends State<Pattern> {
             ),
             size: size,
           ),
-          ...threadPaths.mapIndexed(
-            (index, element) => PatternThread(
-              size: size,
-              thread: element,
-              selected: index == selectedThread,
-              onTap: () {
-                selectedThread = index;
-              },
-            ),
-          ),
-          CustomPaint(
-            painter: KnotPainter(
-              margin: widget.margin,
-              rowSpacing: widget.spacing,
-              threadColors: widget.threads,
-              knotRows: widget.knots,
-            ),
+          PatternThreadStack(
+            threadPaths: threadPaths,
             size: size,
+          ),
+          ...knots.map(
+            (knot) => PatternKnot(knot: knot),
           ),
         ],
       ),
     );
+  }
+
+  List<Knot> calculateKnots() {
+    var knots = <Knot>[];
+
+    final threads = [...widget.threads];
+    for (int i = 0; i < widget.knots.length; i++) {
+      final y = i * widget.spacing + widget.margin + widget.spacing;
+      final isEvenRow = (i + 1) % 2 == 0;
+      final threadStart = isEvenRow ? 1 : 0;
+
+      widget.knots[i].forEachIndexed((idx, knotType) {
+        final leftThreadIdx = threadStart + (idx * 2);
+        final rightThreadIdx = leftThreadIdx + 1;
+
+        final leftThread = threads[leftThreadIdx];
+        final rightThread = threads[rightThreadIdx];
+
+        final Color knotColor;
+        switch (knotType) {
+          case KnotType.forward:
+          case KnotType.forwardBackward:
+            knotColor = leftThread;
+            break;
+
+          case KnotType.backward:
+          case KnotType.backwardForward:
+            knotColor = rightThread;
+            break;
+
+          case KnotType.open:
+            knotColor = Colors.transparent;
+            break;
+        }
+
+        switch (knotType) {
+          case KnotType.forward:
+          case KnotType.backward:
+            threads.swap(leftThreadIdx, rightThreadIdx);
+            break;
+
+          default:
+            break;
+        }
+
+        final x = widget.spacing * (leftThreadIdx + 1.5);
+
+        knots.add(
+          Knot(
+            color: knotColor,
+            type: knotType,
+            position: Offset(x, y),
+          ),
+        );
+      });
+    }
+
+    return knots;
   }
 
   List<ThreadPath> calculateThreads() {
@@ -175,35 +219,52 @@ class _PatternState extends State<Pattern> {
   }
 }
 
-class PatternThread extends StatelessWidget {
-  const PatternThread({
+class PatternThreadStack extends StatefulWidget {
+  const PatternThreadStack({
     super.key,
+    required this.threadPaths,
     required this.size,
-    required this.thread,
-    this.selected = false,
-    this.onTap,
   });
 
+  final List<ThreadPath> threadPaths;
   final Size size;
-  final ThreadPath thread;
-  final bool selected;
-  final void Function()? onTap;
-
-  static final log = Logger('Pattern');
 
   @override
+  State<PatternThreadStack> createState() => _PatternThreadStackState();
+}
+
+class _PatternThreadStackState extends State<PatternThreadStack> {
+  int selectedThread = -1;
+  @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: PathPainter(
-        thread: thread,
-        alpha: selected ? 255 : 96,
-      ),
-      size: size,
-      child: GestureDetector(
-        onTapUp: (details) {
-          var b = thread.path.contains(details.localPosition);
-          log.finest(b);
+    return GestureDetector(
+      child: MouseRegion(
+        opaque: false,
+        onHover: (event) {
+          var hitIndex = -1;
+          widget.threadPaths.forEachIndexedWhile((index, threadPath) {
+            if (threadPath.path.contains(event.localPosition)) {
+              hitIndex = index;
+              return false;
+            }
+            return true;
+          });
+
+          setState(() {
+            selectedThread = hitIndex;
+          });
         },
+        child: Stack(
+          children: widget.threadPaths
+              .mapIndexed(
+                (index, thread) => PatternThread(
+                  size: widget.size,
+                  thread: thread,
+                  selected: index == selectedThread,
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

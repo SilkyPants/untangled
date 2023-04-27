@@ -57,4 +57,9 @@ class GridPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return this != oldDelegate;
   }
+
+  @override
+  bool? hitTest(Offset position) {
+    return false;
+  }
 }

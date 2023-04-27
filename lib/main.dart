@@ -19,7 +19,10 @@ void setupLogging() {
       print('${record.loggerName}: ${record.message}');
     }
 
-    final logFile = File('${record.loggerName}.txt');
+    // Create logs directory if it does not exist
+    Directory('logs').createSync();
+
+    final logFile = File('logs/${record.loggerName}.txt');
     logFile.createSync();
     logFile.writeAsStringSync(
       '${record.level.name}: ${record.message}\n',
