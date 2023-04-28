@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../thread_path.dart';
+import '../entities/thread_path.dart';
 
 class ThreadPathPainter extends CustomPainter {
   final ThreadPath thread;

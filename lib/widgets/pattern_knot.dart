@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'knot_type.dart';
-import 'painters/knot_painter.dart';
+import '../entities/knot.dart';
+import '../painters/knot_painter.dart';
 
 class PatternKnot extends StatefulWidget {
   const PatternKnot({

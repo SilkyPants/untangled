@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import 'thread_path.dart';
-import 'painters/thread_path_painter.dart';
+import '../entities/thread_path.dart';
+import '../painters/thread_path_painter.dart';
 
 class PatternThread extends StatelessWidget {
   const PatternThread({

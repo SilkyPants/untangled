@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../knot_type.dart';
+import '../entities/knot_type.dart';
+import '../entities/knot.dart';
 
 class KnotPainter extends CustomPainter {
   final Knot knot;

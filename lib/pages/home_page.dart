@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:untangled/entities/bracelet_pattern.dart';
 
-import 'knot_type.dart';
-import 'pattern.dart';
+import '../entities/knot_type.dart';
+import '../widgets/pattern_guide.dart';
 
 class MyHomePage extends StatefulWidget {
   final String title;
@@ -16,14 +17,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final threads = <Color>[
+  final pattern = BraceletPattern(threadColors: [
     Colors.blue,
     Colors.red,
     Colors.pink,
     Colors.green,
-  ];
-
-  final knots = [
+  ], knots: [
     [
       KnotType.forward,
       KnotType.backward,
@@ -38,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
     [
       KnotType.forward,
     ],
-  ];
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           children: [
             const Text('I am above'),
-            Pattern(threads: threads, knots: knots),
+            PatternGuide(pattern: pattern),
             const Text('I am below'),
           ],
         ),
