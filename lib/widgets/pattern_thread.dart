@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 
 import '../entities/thread_path.dart';
 import '../painters/thread_path_painter.dart';
@@ -7,26 +6,26 @@ import '../painters/thread_path_painter.dart';
 class PatternThread extends StatelessWidget {
   const PatternThread({
     super.key,
-    required this.size,
     required this.thread,
-    this.selected = false,
+    required this.width,
+    required this.strokeWidth,
+    this.alpha = 255,
   });
 
-  final Size size;
   final ThreadPath thread;
-  final bool selected;
-
-  static final log = Logger('Pattern');
+  final double alpha;
+  final double width;
+  final double strokeWidth;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.fromSize(
-      size: size,
-      child: CustomPaint(
-        painter: ThreadPathPainter(
-          thread: thread,
-          alpha: selected ? 255 : 96,
-        ),
+    return CustomPaint(
+      painter: ThreadPathPainter(
+        threadPath: thread.path,
+        threadColor: thread.color,
+        width: width,
+        strokeWidth: strokeWidth,
+        alpha: alpha.toInt(),
       ),
     );
   }
